@@ -1,15 +1,13 @@
-use std::time::SystemTime;
-
 use axum::{async_trait, extract::FromRequestParts, http::request::Parts, RequestPartsExt};
 use axum_extra::{
     headers::{authorization::Bearer, Authorization},
     TypedHeader,
 };
-use jsonwebtoken::{decode, DecodingKey, EncodingKey, Validation};
-use once_cell::sync::Lazy;
-use serde::{Deserialize, Serialize};
+use jsonwebtoken::{decode, Validation};
 
 use error::AppError;
+
+use crate::{Claims, KEYS};
 
 #[async_trait]
 impl<S> FromRequestParts<S> for Claims
@@ -28,36 +26,4 @@ where
 
         Ok(token_data.claims)
     }
-}
-
-fn get_epoch() -> usize {
-    SystemTime::now()
-        .duration_since(SystemTime::UNIX_EPOCH)
-        .unwrap()
-        .as_secs() as usize
-}
-
-struct Keys {
-    encoding: EncodingKey,
-    decoding: DecodingKey,
-}
-
-static KEYS: Lazy<Keys> = Lazy::new(|| {
-    Keys::new("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiQGIuY29tIiwiY29tcGFueSI6IkFDTUUiLCJleHAiOjEwMDAwMDAwMDAwfQ.M3LAZmrzUkXDC1q5mSzFAs_kJrwuKz3jOoDmjJ0G4gM".as_bytes())
-});
-
-impl Keys {
-    fn new(secret: &[u8]) -> Self {
-        Keys {
-            encoding: EncodingKey::from_secret(secret),
-            decoding: DecodingKey::from_secret(secret),
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct Claims {
-    sub: String,
-    company: String,
-    exp: usize,
 }
