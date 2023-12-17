@@ -5,16 +5,22 @@ use axum::{
 };
 use serde_json::json;
 
-pub enum AppError {
+pub type Result<T> = core::result::Result<T, Error>;
+
+pub enum Error {
     NotFound,
     Unauthorized,
+    WrongAuthcation,
+    NoCtx,
 }
 
-impl IntoResponse for AppError {
+impl IntoResponse for Error {
     fn into_response(self) -> Response {
         let (status, error_message) = match self {
-            AppError::NotFound => (StatusCode::NOT_FOUND, self.to_string()),
-            AppError::Unauthorized => (StatusCode::UNAUTHORIZED, self.to_string()),
+            Error::NotFound => (StatusCode::NOT_FOUND, self.to_string()),
+            Error::Unauthorized => (StatusCode::UNAUTHORIZED, self.to_string()),
+            Error::WrongAuthcation => (StatusCode::UNAUTHORIZED, self.to_string()),
+            Error::NoCtx => (StatusCode::UNAUTHORIZED, self.to_string()),
         };
         let body = Json(json!({
             "error": error_message,
@@ -23,11 +29,13 @@ impl IntoResponse for AppError {
     }
 }
 
-impl std::fmt::Display for AppError {
+impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            AppError::NotFound => write!(f, "Not Found"),
-            AppError::Unauthorized => write!(f, "Unauthorized"),
+            Error::NotFound => write!(f, "Not Found"),
+            Error::Unauthorized => write!(f, "Unauthorized"),
+            Error::WrongAuthcation => write!(f, "Wrong Authcation"),
+            Error::NoCtx => write!(f, "No Ctx"),
         }
     }
 }

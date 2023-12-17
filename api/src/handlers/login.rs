@@ -9,18 +9,18 @@ pub async fn login(Json(paylod): Json<Palyload>) -> impl IntoResponse {
         paylod.username,
         paylod.password
     );
-    let expired = get_epoch();
+    let exp = get_epoch();
     let token = jsonwebtoken::encode(
         &jsonwebtoken::Header::default(),
         &Claims {
             user_id: 1,
-            username: "ba@.com".to_string(),
-            expired: expired,
+            username: paylod.username,
+            exp: exp,
         },
         &KEYS.encoding,
     )
     .unwrap();
-    (StatusCode::OK, Json(Token { token, expired }))
+    (StatusCode::OK, Json(Token { token, exp }))
 }
 
 #[derive(Debug, Deserialize)]
@@ -32,5 +32,5 @@ pub struct Palyload {
 #[derive(Debug, Serialize)]
 struct Token {
     token: String,
-    expired: usize,
+    exp: usize,
 }

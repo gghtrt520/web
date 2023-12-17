@@ -1,29 +1,38 @@
 use std::time::SystemTime;
 
-use axum::{Router, routing::post};
-use jsonwebtoken::{EncodingKey, DecodingKey};
-use once_cell::sync::Lazy;
-use serde::{Serialize, Deserialize};
 use crate::handlers::login::login;
+use axum::{
+    middleware,
+    routing::{get, post},
+    Router,
+};
+use handlers::user::get_user;
+use jsonwebtoken::{DecodingKey, EncodingKey};
+use middlewares::auth;
+use once_cell::sync::Lazy;
+use serde::{Deserialize, Serialize};
 
-pub mod middleware;
+pub mod ctx;
 pub mod handlers;
+pub mod middlewares;
 
-pub fn routes() ->Router{
-    Router::new().route("/login", post(login))
+pub fn routes() -> Router {
+    Router::new()
+        .route("/login", post(login)).merge(routes_with_auth())
 }
 
-
-
+pub fn routes_with_auth() -> Router {
+    Router::new()
+        .route("/user", get(get_user))
+        .layer(middleware::from_fn(auth))
+}
 
 fn get_epoch() -> usize {
     SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)
         .unwrap()
-        .as_secs() as usize
+        .as_secs() as usize + 3000
 }
-
-
 
 struct Keys {
     encoding: EncodingKey,
@@ -47,5 +56,5 @@ impl Keys {
 struct Claims {
     user_id: usize,
     username: String,
-    expired: usize,
+    exp: usize,
 }
