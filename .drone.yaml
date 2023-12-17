@@ -1,0 +1,20 @@
+kind: pipeline
+type: docker
+name: build rust web
+
+steps:
+- name: base-image-kaniko
+  image: gghtrt520/kaniko
+  pull: if-not-exists
+  settings:
+    debug: true
+    repo: gghtrt520/web
+    dockerfile: ./Dockerfile
+    username:
+      from_secret: user
+    password:
+      from_secret: password
+    tags:
+      - "1.0.0"
+    when:
+      event: [ push ]
