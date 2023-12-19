@@ -1,6 +1,7 @@
 use std::time::SystemTime;
 
 use crate::handlers::login::login;
+use access::access;
 use axum::{
     middleware,
     routing::{get, post},
@@ -8,13 +9,14 @@ use axum::{
 };
 use handlers::user::get_user;
 use jsonwebtoken::{DecodingKey, EncodingKey};
-use middlewares::auth;
+use auth::auth;
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 
 pub mod ctx;
 pub mod handlers;
-pub mod middlewares;
+pub mod auth;
+pub mod access;
 
 pub fn routes() -> Router {
     Router::new()
@@ -24,6 +26,7 @@ pub fn routes() -> Router {
 pub fn routes_with_auth() -> Router {
     Router::new()
         .route("/user", get(get_user))
+        .layer(middleware::from_fn(access))
         .layer(middleware::from_fn(auth))
 }
 

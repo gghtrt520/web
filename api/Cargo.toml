@@ -15,3 +15,4 @@ serde_json = { workspace = true }
 once_cell = { workspace = true }
 jsonwebtoken = { workspace = true }
 tracing = { workspace = true }
+casbin = { workspace = true }
