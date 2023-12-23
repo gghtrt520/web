@@ -7,12 +7,17 @@ use serde_json::json;
 
 pub type Result<T> = core::result::Result<T, Error>;
 
+#[derive(Debug)]
 pub enum Error {
     NotFound,
     Unauthorized,
     WrongAuthcation,
     NoCtx,
     NoAccess,
+
+    DatabaseConnectionError,
+
+    NoEnvirmentError,
 }
 
 impl IntoResponse for Error {
@@ -23,6 +28,8 @@ impl IntoResponse for Error {
             Error::WrongAuthcation => (StatusCode::UNAUTHORIZED, self.to_string()),
             Error::NoCtx => (StatusCode::UNAUTHORIZED, self.to_string()),
             Error::NoAccess => (StatusCode::UNAUTHORIZED, self.to_string()),
+            Error::DatabaseConnectionError => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
+            Error::NoEnvirmentError => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
         };
         let body = Json(json!({
             "error": error_message,
@@ -39,6 +46,8 @@ impl std::fmt::Display for Error {
             Error::WrongAuthcation => write!(f, "Wrong Authcation"),
             Error::NoCtx => write!(f, "No Ctx"),
             Error::NoAccess => write!(f, "No Access"),
+            Error::DatabaseConnectionError => write!(f, "Database Connection Error"),
+            Error::NoEnvirmentError => write!(f, "No Envirment Error"),
         }
     }
 }

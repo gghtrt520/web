@@ -9,8 +9,10 @@ default-run = "app"
 [dependencies]
 api = { path = "../api" }
 error = { path = "../error" }
+store = { path = "../store" }
 
 tokio = { workspace = true }
 axum = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
+dotenv = { workspace = true }

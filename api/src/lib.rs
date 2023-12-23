@@ -1,40 +1,44 @@
-use std::time::SystemTime;
-
-use crate::handlers::login::login;
-use access::access;
 use axum::{
     middleware,
     routing::{get, post},
     Router,
 };
-use handlers::user::get_user;
 use jsonwebtoken::{DecodingKey, EncodingKey};
-use auth::auth;
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
+use std::time::SystemTime;
 
+use access::access;
+use auth::auth;
+use handlers::login::login;
+use handlers::user::get_user;
+use store::Store;
+
+pub mod access;
+pub mod auth;
 pub mod ctx;
 pub mod handlers;
-pub mod auth;
-pub mod access;
 
-pub fn routes() -> Router {
+pub fn routes(store: Store) -> Router {
     Router::new()
-        .route("/login", post(login)).merge(routes_with_auth())
+        .route("/login", post(login))
+        .merge(routes_with_auth(store))
 }
 
-pub fn routes_with_auth() -> Router {
+pub fn routes_with_auth(store: Store) -> Router {
     Router::new()
         .route("/user", get(get_user))
         .layer(middleware::from_fn(access))
         .layer(middleware::from_fn(auth))
+        .with_state(store)
 }
 
 fn get_epoch() -> usize {
     SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)
         .unwrap()
-        .as_secs() as usize + 3000
+        .as_secs() as usize
+        + 3000
 }
 
 struct Keys {
