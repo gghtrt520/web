@@ -29,7 +29,7 @@ pub async fn login(
             exp: exp,
         },
         &KEYS.encoding,
-    )
+    ).map_err(|_| Error::TokenGenError)
     .unwrap();
     return Ok(Json(Authcation { token, exp }));
 }

@@ -14,6 +14,7 @@ pub enum Error {
     WrongAuthcation,
     NoCtx,
     NoAccess,
+    TokenGenError,
 
     DatabaseConnectionError,
 
@@ -28,6 +29,7 @@ impl IntoResponse for Error {
             Error::WrongAuthcation => (StatusCode::UNAUTHORIZED, self.to_string()),
             Error::NoCtx => (StatusCode::UNAUTHORIZED, self.to_string()),
             Error::NoAccess => (StatusCode::UNAUTHORIZED, self.to_string()),
+            Error::TokenGenError => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
             Error::DatabaseConnectionError => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
             Error::NoEnvirmentError => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
         };
@@ -46,6 +48,7 @@ impl std::fmt::Display for Error {
             Error::WrongAuthcation => write!(f, "Wrong Authcation"),
             Error::NoCtx => write!(f, "No Ctx"),
             Error::NoAccess => write!(f, "No Access"),
+            Error::TokenGenError => write!(f, "Token Gen Error"),
             Error::DatabaseConnectionError => write!(f, "Database Connection Error"),
             Error::NoEnvirmentError => write!(f, "No Envirment Error"),
         }
