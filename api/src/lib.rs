@@ -19,6 +19,8 @@ pub mod auth;
 pub mod ctx;
 pub mod handlers;
 
+const TOKEN_EXP_DURATION: usize = 3000;
+
 pub fn routes(store: Store) -> Router {
     Router::new()
         .route("/login", post(login)).with_state(store.clone())
@@ -38,7 +40,7 @@ fn get_epoch() -> usize {
         .duration_since(SystemTime::UNIX_EPOCH)
         .unwrap()
         .as_secs() as usize
-        + 3000
+        + self::TOKEN_EXP_DURATION
 }
 
 struct Keys {
