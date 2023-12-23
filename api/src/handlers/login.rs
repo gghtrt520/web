@@ -1,9 +1,9 @@
 use axum::{extract::State, Json};
 use error::{Error, Result};
+use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use serde::{Deserialize, Serialize};
 use store::entity::user::Entity;
 use store::{entity::user, Store};
-use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 
 use crate::{get_epoch, Claims, KEYS};
 
@@ -18,8 +18,9 @@ pub async fn login(
                 .and(user::Column::Password.eq(paylod.password)),
         )
         .one(&store.db)
-        .await;
-    let user = user.unwrap().ok_or(Error::NotFound).unwrap();
+        .await
+        .map_err(|_| Error::DatabaseConnectionError)?;
+    let user = user.ok_or(Error::NotFound)?;
     let exp = get_epoch();
     let token = jsonwebtoken::encode(
         &jsonwebtoken::Header::default(),
@@ -29,8 +30,8 @@ pub async fn login(
             exp: exp,
         },
         &KEYS.encoding,
-    ).map_err(|_| Error::TokenGenError)
-    .unwrap();
+    )
+    .map_err(|_| Error::TokenGenError)?;
     return Ok(Json(Authcation { token, exp }));
 }
 
