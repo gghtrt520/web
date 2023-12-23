@@ -9,6 +9,7 @@ edition = "2021"
 error = { path = "../error" }
 store = { path = "../store" }
 
+
 axum = { workspace = true }
 axum-extra = { workspace = true }
 serde = { workspace = true }
@@ -17,3 +18,4 @@ once_cell = { workspace = true }
 jsonwebtoken = { workspace = true }
 tracing = { workspace = true }
 casbin = { workspace = true }
+sea-orm = { workspace = true }

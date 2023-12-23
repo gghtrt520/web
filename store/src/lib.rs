@@ -7,7 +7,7 @@ pub mod entity;
 
 #[derive(Debug,Clone)]
 pub struct Store {
-    db: DatabaseConnection,
+    pub db: DatabaseConnection,
 }
 
 impl Store {

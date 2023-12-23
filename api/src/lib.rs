@@ -21,7 +21,7 @@ pub mod handlers;
 
 pub fn routes(store: Store) -> Router {
     Router::new()
-        .route("/login", post(login))
+        .route("/login", post(login)).with_state(store.clone())
         .merge(routes_with_auth(store))
 }
 

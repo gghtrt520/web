@@ -136,6 +136,7 @@ dependencies = [
  "error",
  "jsonwebtoken",
  "once_cell",
+ "sea-orm",
  "serde",
  "serde_json",
  "store",
