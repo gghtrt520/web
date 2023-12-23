@@ -12,32 +12,28 @@ pub async fn login(State(store): State<Store>, Json(paylod): Json<Palyload>) -> 
         .filter(
             user::Column::Username
                 .eq(paylod.username)
-                .add(user::Column::Password.eq(paylod.password)),
+                .and(user::Column::Password.eq(paylod.password)),
         )
         .one(&store.db)
-        .await
-        .map_err(|_| Error::DatabaseConnectionError)
-        .unwrap()
-        .ok_or(Error::NotFound)
-        .unwrap();
-
-    tracing::info!(
-        "handler=login, username={},password={}",
-        user.username,
-        user.password
-    );
-    let exp = get_epoch();
-    let token = jsonwebtoken::encode(
-        &jsonwebtoken::Header::default(),
-        &Claims {
-            user_id: user.id as usize,
-            username: user.username,
-            exp: exp,
-        },
-        &KEYS.encoding,
-    )
-    .unwrap();
-    (StatusCode::OK, Json(Token { token, exp }))
+        .await;
+    let user = user.unwrap().ok_or(Error::NotFound);
+    match user {
+        Ok(user) => {
+            let exp = get_epoch();
+            let token = jsonwebtoken::encode(
+                &jsonwebtoken::Header::default(),
+                &Claims {
+                    user_id: user.id as usize,
+                    username: user.username,
+                    exp: exp,
+                },
+                &KEYS.encoding,
+            )
+            .unwrap();
+            return (StatusCode::OK, Json(Token { token, exp })).into_response();
+        }
+        Err(e) => return e.into_response(),
+    }
 }
 
 #[derive(Debug, Deserialize)]
